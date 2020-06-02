@@ -22,7 +22,6 @@ class Cell {
         this.x = x;
         this.y = y;
 
-        if (!(height >= 0 && height <= 1)) console.log(height)
         this.height = height || 0;
         this.locked = false;
     }
