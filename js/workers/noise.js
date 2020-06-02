@@ -12,6 +12,10 @@ self.addEventListener("message", (e) => {
             if (!self.noise) {
                 self.seed = data.seed || Math.random();
 
+                self.iterations = data.iterations;
+                self.persistance = data.persistance;
+                self.scale = data.scale;
+
                 self.noise = new SimplexNoise(self.seed);
             }
             break;
@@ -21,9 +25,8 @@ self.addEventListener("message", (e) => {
             }
             break;
         case "octave":
-            if (typeof data.x == "number" && typeof data.y == "number" && typeof data.iterations == "number"
-                && typeof data.persistance == "number" && typeof data.scale == "number") {
-                response.noise = self.noise.octave(data.x, data.y, data.iterations, data.persistance, data.scale);
+            if (typeof data.x == "number" && typeof data.y == "number") {
+                response.noise = self.noise.octave(data.x, data.y, self.iterations, self.persistance, self.scale);
             }
             break;
         default:

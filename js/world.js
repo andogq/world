@@ -39,7 +39,12 @@ class World {
         this.maxDistance = Math.hypot(this.center.x, this.center.y);
         
         // Initialise noise
-        this.noise = new Thread("noise", {seed: this.seed});
+        this.noise = new Thread("noise", {
+            seed: this.seed,
+            iterations: this.noiseIterations,
+            persistance: this.noisePersistance,
+            scale: this.noiseScale
+        });
 
         console.time("Cell Generating");
 
@@ -79,10 +84,7 @@ class World {
                 // Generate the height map
                 rowPromises.push(this.noise.send("octave", {
                     x: actualX,
-                    y: actualY,
-                    iterations: this.noiseIterations,
-                    persistance: this.noisePersistance,
-                    scale: this.noiseScale
+                    y: actualY
                 }).then(({noise}) => {
                     // Lower distances as it gets further from the center
                     let distance = Math.hypot(this.center.x - actualX, this.center.y - actualY);
