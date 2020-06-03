@@ -7,13 +7,14 @@ class Channel {
 
         this.port.onmessage = (e) => {
             let packet = e.data;
+            let ports = e.ports;
 
             if (packet.type == "response") {
                 if (this.requests[packet.id]) {
                     this.requests[packet.id](packet.data);
                 }
             } else if (this.incomming) {
-                this.incomming(packet.type, packet.data).then((data) => {
+                this.incomming(packet.type, packet.data, ports).then((data) => {
                     let response = {
                         type: "response",
                         data,
