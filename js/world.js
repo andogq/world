@@ -48,26 +48,43 @@ class World {
 
         console.time("Cell Generating");
 
-        // Initialise cells
-        let promises = [];
-        
-        for (let x = 0; x < this.dimensions.x / this.chunkSize; x++) {
-            let rowPromises = [];
-
-            for (let y = 0; y < this.dimensions.y / this.chunkSize; y++) {
-                rowPromises.push(this.generateChunk(x, y));
-            }
-
-            promises.push(Promise.all(rowPromises));
-        }
-
-        Promise.all(promises).then((chunks) => {
-            this.chunks = chunks;
-            console.timeEnd("Cell Generating");
-
-            requestAnimationFrame(this.draw.bind(this));
-            console.timeEnd("World Initialisation");
+        // Create message channel for new thread
+        let c = new MessageChannel();
+        // Send it to the noise thread
+        this.noise.send("attach", undefined, [c.port2]);
+        // Make the new thread
+        let t = new Thread("generate", {
+            size: this.chunkSize,
+            center: this.center,
+            maxDistance: this.maxDistance,
+            islandFilterLevel: this.islandFilterLevel
+        }, [c.port1]);
+        t.send("generate", {x: 0, y: 0}).then(({data}) => {
+            this.chunks[0][0] = data;
         });
+
+        this.chunks = [[]];
+
+        // Initialise cells
+        // let promises = [];
+        
+        // for (let x = 0; x < this.dimensions.x / this.chunkSize; x++) {
+        //     let rowPromises = [];
+
+        //     for (let y = 0; y < this.dimensions.y / this.chunkSize; y++) {
+        //         rowPromises.push(this.generateChunk(x, y));
+        //     }
+
+        //     promises.push(Promise.all(rowPromises));
+        // }
+
+        // Promise.all(promises).then((chunks) => {
+        //     this.chunks = chunks;
+        //     console.timeEnd("Cell Generating");
+
+        //     console.timeEnd("World Initialisation");
+        // });
+        requestAnimationFrame(this.draw.bind(this));
     }
 
     generateChunk(chunkX, chunkY) {
@@ -127,7 +144,7 @@ class World {
 
         // Restore the canvas back to how it was
         this.ctx.restore();
-        // requestAnimationFrame(this.draw.bind(this));
+        requestAnimationFrame(this.draw.bind(this));
     }
 }
 

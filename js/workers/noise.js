@@ -1,13 +1,12 @@
 import {SimplexNoise} from "/js/noise.js";
 
-self.addEventListener("message", (e) => {
+function message(type, data = {}, id, responder) {
     let response = {
         success: true,
-        id: e.data.id
-    };
-    let data = e.data.data || {};
+        id
+    }
 
-    switch (e.data.type) {
+    switch (type) {
         case "init":
             if (!self.noise) {
                 self.seed = data.seed || Math.random();
@@ -34,5 +33,14 @@ self.addEventListener("message", (e) => {
             break;
     }
 
-    self.postMessage(response);
+    responder.postMessage(response);
+}
+
+self.addEventListener("message", (e) => {
+    if (e.data.type == "attach") {
+        let channel = e.ports[0];
+        channel.onmessage = (e) => message(e.data.type, e.data.data, e.data.id, channel);
+    } else {
+        message(e.data.type, e.data.data, e.data.id, self);
+    }
 });

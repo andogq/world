@@ -1,5 +1,5 @@
 class Thread {
-    constructor(name, initData) {
+    constructor(name, initData, transferables) {
         this.messages = {};
 
         this.worker = new Worker(`/js/workers/${name}.js`, {type: "module"});
@@ -11,11 +11,10 @@ class Thread {
             }
         });
 
-        this.worker.postMessage("Hello");
-        this.send("init", initData);
+        this.send("init", initData, transferables);
     }
 
-    send(type, data) {
+    send(type, data, transferables) {
         return new Promise((resolve) => {
             let id;
 
@@ -29,7 +28,7 @@ class Thread {
                 type,
                 data,
                 id
-            });
+            }, transferables);
         });
     }
 }
