@@ -46,24 +46,32 @@ class World {
             scale: this.noiseScale
         });
 
+        this.noise.send("2d", {x: 0, y: 0}).then(console.log)
+
         console.time("Cell Generating");
 
-        // Create message channel for new thread
-        let c = new MessageChannel();
-        // Send it to the noise thread
-        this.noise.send("attach", undefined, [c.port2]);
-        // Make the new thread
-        let t = new Thread("generate", {
-            size: this.chunkSize,
-            center: this.center,
-            maxDistance: this.maxDistance,
-            islandFilterLevel: this.islandFilterLevel
-        }, [c.port1]);
-        t.send("generate", {x: 0, y: 0}).then(({data}) => {
-            this.chunks[0][0] = data;
-        });
+        // // Create message channel for new thread
+        // let c = new MessageChannel();
+        // // Send it to the noise thread
+        // this.noise.send("attach", undefined, [c.port2]);
+        // // Make the new thread
+        // let t = new Thread("generate", {
+        //     size: this.chunkSize,
+        //     center: this.center,
+        //     maxDistance: this.maxDistance,
+        //     islandFilterLevel: this.islandFilterLevel
+        // }, [c.port1]);
+        // t.send("generate", {x: 0, y: 0}).then(({data}) => {
+        //     this.chunks[0][0] = data;
+        // });
 
         this.chunks = [[]];
+
+
+        // TODO: Convert current workers to utilise the base class
+        // TODO: Make sure that noise is using the Thread class correctly
+        // TODO: Make single chunk generate from thread
+        // TODO: Make threads to generate all the chunks
 
         // Initialise cells
         // let promises = [];
